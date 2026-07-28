@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 300" fill="none">
+  <text x="40" y="66" font-family="ui-monospace,'SF Mono',Menlo,Consolas,monospace" font-size="15" letter-spacing="6" fill="#8C8C92">[ EST. 2024 ]</text>
+  <text x="34" y="182" font-family="'Poppins',Arial,sans-serif" font-weight="800" font-size="150" letter-spacing="-6" fill="currentColor">CC</text>
+  <circle cx="300" cy="70" r="9" fill="#5B8BB0"/>
+  <line x1="40" y1="212" x2="320" y2="212" stroke="currentColor" stroke-width="2"/>
+  <text x="41" y="256" font-family="ui-monospace,'SF Mono',Menlo,Consolas,monospace" font-size="22" letter-spacing="14" fill="currentColor">STUDIO</text>
+</svg>

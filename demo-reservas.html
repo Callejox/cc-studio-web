@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>Demo · Gestor de Reservas — CC Studio LAB</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="fonts/fonts.css">
+  <style>
+    :root{ --bg:#0A0A0B; --bg2:#141416; --card:#1b1b1f; --fg:#F3F3F4; --muted:#8C8C92; --accent:#5B8BB0; --ok:#6B8F71; --line:#262628;
+      --ft:'Poppins',sans-serif; --fb:'Inter',sans-serif; --fm:ui-monospace,'SF Mono',Menlo,Consolas,monospace; }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--bg);color:var(--fg);font-family:var(--fb);line-height:1.5;padding:26px clamp(16px,4vw,48px) 60px}
+    a{color:var(--accent)}
+    .top{display:flex;flex-wrap:wrap;gap:14px;align-items:baseline;justify-content:space-between;margin-bottom:8px}
+    .mono{font-family:var(--fm);font-size:.72rem;letter-spacing:.09em;color:var(--muted)}
+    h1{font-family:var(--ft);font-weight:700;font-size:clamp(1.6rem,4vw,2.4rem);letter-spacing:-.02em}
+    .nota{color:var(--muted);font-size:.9rem;max-width:70ch;margin:6px 0 22px}
+    .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px}
+    .kpi{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+    .kpi b{display:block;font-family:var(--ft);font-size:1.5rem;margin-top:2px}
+    .kpi .ok{color:var(--ok)} .kpi .ac{color:var(--accent)}
+    .barra{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-bottom:14px;font-size:.88rem;color:var(--muted)}
+    .barra input{width:70px;background:var(--bg2);border:1px solid var(--line);border-radius:8px;color:var(--fg);padding:6px 8px;font-family:var(--fb)}
+    .leyenda span{display:inline-block;margin-right:14px}
+    .dot{display:inline-block;width:10px;height:10px;border-radius:3px;vertical-align:-1px;margin-right:5px}
+    .grid{display:grid;grid-template-columns:64px repeat(4,1fr);gap:6px;max-width:980px}
+    .cab{font-family:var(--fm);font-size:.7rem;letter-spacing:.06em;color:var(--muted);text-align:center;padding:6px 0}
+    .hora{font-family:var(--fm);font-size:.7rem;color:var(--muted);display:flex;align-items:center;justify-content:flex-end;padding-right:8px}
+    .celda{min-height:52px;border:1px dashed var(--line);border-radius:8px;cursor:pointer;padding:7px 9px;font-size:.78rem;transition:border-color .2s, background .2s;user-select:none}
+    .celda:hover{border-color:var(--accent)}
+    .celda.p{background:#23232a;border:1px dashed var(--muted)}
+    .celda.c{background:#2A4257;border:1px solid transparent}
+    .celda.co{background:#24382C;border:1px solid transparent}
+    .celda small{display:block;color:var(--muted)} .celda.c small{color:var(--accent)} .celda.co small{color:var(--ok)}
+    .pie{margin-top:26px;display:flex;gap:12px;flex-wrap:wrap}
+    .btn{display:inline-block;background:var(--accent);color:var(--bg);font-weight:600;padding:12px 22px;border-radius:999px;text-decoration:none}
+    .btn.g{background:transparent;color:var(--fg);border:1px solid var(--line)}
+    @media(max-width:640px){ .grid{grid-template-columns:52px repeat(2,1fr)} .grid .col34{display:none} }
+  </style>
+</head>
+<body>
+  <div class="top">
+    <div>
+      <span class="mono">( demo interactiva · pack lab )</span>
+      <h1>Gestor de Reservas</h1>
+    </div>
+    <a href="index.html" class="mono">← volver a la web</a>
+  </div>
+  <p class="nota">
+    Demo con <strong>datos ficticios</strong> de un sistema real que desarrollamos para un negocio de alquiler náutico.
+    <strong>Haz clic en una casilla libre</strong> para crear una reserva, y clic sobre una reserva para
+    confirmarla → cobrarla → liberarla. Los números se actualizan solos.
+  </p>
+
+  <div class="kpis">
+    <div class="kpi"><span class="mono">reservas hoy</span><b id="kRes">0</b></div>
+    <div class="kpi"><span class="mono">ocupación</span><b class="ac" id="kOcu">0%</b></div>
+    <div class="kpi"><span class="mono">ingresos previstos</span><b id="kIng">0€</b></div>
+    <div class="kpi"><span class="mono">cobrado</span><b class="ok" id="kCob">0€</b></div>
+  </div>
+
+  <div class="barra">
+    <label>Tarifa por hora: <input type="number" id="tarifa" value="45" min="5" step="5"> €</label>
+    <span class="leyenda">
+      <span><span class="dot" style="background:#23232a;border:1px dashed #8C8C92"></span>pendiente</span>
+      <span><span class="dot" style="background:#2A4257"></span>confirmada</span>
+      <span><span class="dot" style="background:#24382C"></span>cobrada</span>
+    </span>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="pie">
+    <a class="btn" href="index.html#contact">Quiero un sistema así para mi negocio →</a>
+    <a class="btn g" href="index.html#pricing">Ver pack LAB</a>
+  </div>
+
+  <script>
+  (function(){
+    const HORAS = ['10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00'];
+    const FLOTA = ['Moto 1','Moto 2','Moto 3','Moto 4'];
+    const NOMBRES = ['M. García','L. Pons','A. Ricci','J. Moreau','K. Nowak','S. Ortiz','D. Costa','E. Vidal','R. Bauer','N. Ferrer'];
+    let nom = 0;
+    const grid = document.getElementById('grid');
+    const tarifa = document.getElementById('tarifa');
+    // estado: null | {n:nombre, e:'p'|'c'|'$', precio}
+    const st = HORAS.map(()=>FLOTA.map(()=>null));
+    // algunas reservas de partida
+    [[0,0,'c'],[0,1,'$'],[2,2,'c'],[3,0,'p'],[4,3,'$'],[5,1,'c']].forEach(([h,f,e])=>{
+      st[h][f]={n:NOMBRES[nom++%NOMBRES.length], e, precio: +tarifa.value};
+    });
+
+    function precioActual(){ return Math.max(5, +tarifa.value || 45); }
+
+    function render(){
+      let html = '<div></div>' + FLOTA.map((f,i)=>`<div class="cab${i>=2?' col34':''}">${f}</div>`).join('');
+      HORAS.forEach((h,hi)=>{
+        html += `<div class="hora">${h}</div>`;
+        FLOTA.forEach((f,fi)=>{
+          const r = st[hi][fi];
+          const extra = fi>=2 ? ' col34' : '';
+          if(!r) html += `<div class="celda${extra}" data-h="${hi}" data-f="${fi}"><small>+ libre</small></div>`;
+          else {
+            const cls = r.e==='p'?'p':(r.e==='c'?'c':'co');
+            const et  = r.e==='p'?'pendiente':(r.e==='c'?'confirmada':'cobrada');
+            html += `<div class="celda ${cls}${extra}" data-h="${hi}" data-f="${fi}">${r.n}<small>${et} · ${r.precio}€</small></div>`;
+          }
+        });
+      });
+      grid.innerHTML = html;
+      // KPIs
+      const todas = st.flat().filter(Boolean);
+      document.getElementById('kRes').textContent = todas.length;
+      document.getElementById('kOcu').textContent = Math.round(100*todas.length/(HORAS.length*FLOTA.length)) + '%';
+      document.getElementById('kIng').textContent = todas.reduce((s,r)=>s+r.precio,0) + '€';
+      document.getElementById('kCob').textContent = todas.filter(r=>r.e==='$').reduce((s,r)=>s+r.precio,0) + '€';
+    }
+
+    grid.addEventListener('click', e=>{
+      const c = e.target.closest('.celda'); if(!c) return;
+      const h=+c.dataset.h, f=+c.dataset.f, r=st[h][f];
+      if(!r) st[h][f]={n:NOMBRES[nom++%NOMBRES.length], e:'p', precio: precioActual()};
+      else if(r.e==='p') r.e='c';
+      else if(r.e==='c') r.e='$';
+      else st[h][f]=null;   // cobrada -> liberar
+      render();
+    });
+    tarifa.addEventListener('input', render);
+    render();
+  })();
+  </script>
+</body>
+</html>

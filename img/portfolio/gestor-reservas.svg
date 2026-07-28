@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900" font-family="Segoe UI, Arial, sans-serif">
+  <rect width="1200" height="900" fill="#141416"/>
+  <!-- barra lateral -->
+  <rect width="216" height="900" fill="#0f0f11"/>
+  <circle cx="42" cy="46" r="10" fill="#5B8BB0"/>
+  <text x="62" y="52" fill="#F3F3F4" font-size="20" font-weight="700">Gestor LAB</text>
+  <g fill="#8C8C92" font-size="15">
+    <rect x="24" y="92" width="168" height="34" rx="8" fill="#1E2A36"/>
+    <text x="40" y="114" fill="#5B8BB0">▦  Agenda del día</text>
+    <text x="40" y="160">☰  Reservas</text>
+    <text x="40" y="200">👥  Clientes</text>
+    <text x="40" y="240">🛥  Flota</text>
+    <text x="40" y="280">€  Contabilidad</text>
+    <text x="40" y="320">⚙  Ajustes</text>
+  </g>
+  <!-- cabecera -->
+  <text x="248" y="56" fill="#F3F3F4" font-size="24" font-weight="700">Agenda · hoy</text>
+  <text x="1030" y="56" fill="#8C8C92" font-size="14">martes 12:40</text>
+  <!-- KPIs -->
+  <g>
+    <rect x="248" y="80" width="216" height="88" rx="10" fill="#1b1b1f" stroke="#262628"/>
+    <text x="268" y="112" fill="#8C8C92" font-size="13">RESERVAS HOY</text>
+    <text x="268" y="148" fill="#F3F3F4" font-size="30" font-weight="700">14</text>
+    <rect x="480" y="80" width="216" height="88" rx="10" fill="#1b1b1f" stroke="#262628"/>
+    <text x="500" y="112" fill="#8C8C92" font-size="13">OCUPACIÓN</text>
+    <text x="500" y="148" fill="#5B8BB0" font-size="30" font-weight="700">78%</text>
+    <rect x="712" y="80" width="216" height="88" rx="10" fill="#1b1b1f" stroke="#262628"/>
+    <text x="732" y="112" fill="#8C8C92" font-size="13">INGRESOS PREVISTOS</text>
+    <text x="732" y="148" fill="#F3F3F4" font-size="30" font-weight="700">1.240€</text>
+    <rect x="944" y="80" width="216" height="88" rx="10" fill="#1b1b1f" stroke="#262628"/>
+    <text x="964" y="112" fill="#8C8C92" font-size="13">COBRADO</text>
+    <text x="964" y="148" fill="#6B8F71" font-size="30" font-weight="700">860€</text>
+  </g>
+  <!-- rejilla agenda -->
+  <g font-size="13" fill="#8C8C92">
+    <text x="248" y="220">10:00</text><text x="248" y="290">11:00</text><text x="248" y="360">12:00</text>
+    <text x="248" y="430">13:00</text><text x="248" y="500">14:00</text><text x="248" y="570">15:00</text>
+    <text x="248" y="640">16:00</text><text x="248" y="710">17:00</text><text x="248" y="780">18:00</text>
+  </g>
+  <g stroke="#262628"><path d="M320 195h840M320 265h840M320 335h840M320 405h840M320 475h840M320 545h840M320 615h840M320 685h840M320 755h840"/></g>
+  <g font-size="14" fill="#8C8C92">
+    <text x="360" y="186">Moto 1</text><text x="570" y="186">Moto 2</text><text x="780" y="186">Moto 3</text><text x="990" y="186">Moto 4</text>
+  </g>
+  <!-- bloques de reserva -->
+  <g font-size="13">
+    <rect x="330" y="205" width="190" height="52" rx="7" fill="#2A4257"/><text x="344" y="227" fill="#F3F3F4">M. García</text><text x="344" y="246" fill="#5B8BB0">confirmada · 90€</text>
+    <rect x="540" y="205" width="190" height="122" rx="7" fill="#24382C"/><text x="554" y="227" fill="#F3F3F4">L. Pons (2h)</text><text x="554" y="246" fill="#6B8F71">cobrada · 170€</text>
+    <rect x="750" y="275" width="190" height="52" rx="7" fill="#2A4257"/><text x="764" y="297" fill="#F3F3F4">A. Ricci</text><text x="764" y="316" fill="#5B8BB0">confirmada · 90€</text>
+    <rect x="330" y="345" width="190" height="52" rx="7" fill="#23232a" stroke="#8C8C92" stroke-dasharray="4 4"/><text x="344" y="367" fill="#F3F3F4">J. Moreau</text><text x="344" y="386" fill="#8C8C92">pendiente · 45€</text>
+    <rect x="960" y="345" width="190" height="122" rx="7" fill="#24382C"/><text x="974" y="367" fill="#F3F3F4">Familia Soler (2h)</text><text x="974" y="386" fill="#6B8F71">cobrada · 160€</text>
+    <rect x="540" y="415" width="190" height="52" rx="7" fill="#2A4257"/><text x="554" y="437" fill="#F3F3F4">K. Nowak</text><text x="554" y="456" fill="#5B8BB0">confirmada · 90€</text>
+    <rect x="750" y="485" width="190" height="52" rx="7" fill="#23232a" stroke="#8C8C92" stroke-dasharray="4 4"/><text x="764" y="507" fill="#F3F3F4">S. Ortiz</text><text x="764" y="526" fill="#8C8C92">pendiente · 45€</text>
+    <rect x="330" y="555" width="190" height="122" rx="7" fill="#2A4257"/><text x="344" y="577" fill="#F3F3F4">Grupo Vela (2h)</text><text x="344" y="596" fill="#5B8BB0">confirmada · 170€</text>
+    <rect x="960" y="625" width="190" height="52" rx="7" fill="#24382C"/><text x="974" y="647" fill="#F3F3F4">D. Costa</text><text x="974" y="666" fill="#6B8F71">cobrada · 90€</text>
+  </g>
+  <!-- pie -->
+  <rect x="248" y="800" width="912" height="64" rx="10" fill="#1b1b1f" stroke="#262628"/>
+  <text x="272" y="838" fill="#8C8C92" font-size="14">Disponibilidad en tiempo real · Precios automáticos por duración · Informe diario listo para contabilidad</text>
+</svg>

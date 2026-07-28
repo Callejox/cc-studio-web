@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="CC Studio">
+  <!-- Favicon: fondo carbón + CC crema + punto ámbar. Fondo sólido para verse bien en cualquier pestaña. -->
+  <rect width="64" height="64" rx="14" fill="#0A0A0B"/>
+  <text x="31" y="44" text-anchor="middle" font-family="'Poppins',Arial,sans-serif" font-weight="800" font-size="32" letter-spacing="-2" fill="#F3F3F4">CC</text>
+  <circle cx="52" cy="16" r="4.5" fill="#5B8BB0"/>
+</svg>

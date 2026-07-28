@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /gracias.html
+Disallow: /enviar.php
+
+Sitemap: https://www.ccstudioweb.es/sitemap.xml

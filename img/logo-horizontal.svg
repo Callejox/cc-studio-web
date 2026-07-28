@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 80" fill="none" role="img" aria-label="CC Studio">
+  <!-- Versión horizontal para la cabecera. Hereda currentColor (crema sobre oscuro). Acento ámbar. -->
+  <text x="4" y="52" font-family="'Poppins',Arial,sans-serif" font-weight="800" font-size="52" letter-spacing="-3" fill="currentColor">CC</text>
+  <circle cx="98" cy="46" r="5" fill="#5B8BB0"/>
+  <text x="114" y="44" font-family="ui-monospace,'SF Mono',Menlo,Consolas,monospace" font-size="18" letter-spacing="7" fill="currentColor">STUDIO</text>
+  <text x="115" y="64" font-family="ui-monospace,'SF Mono',Menlo,Consolas,monospace" font-size="10.5" letter-spacing="2" fill="currentColor" fill-opacity="0.55">DISEÑO WEB · SEO</text>
+</svg>

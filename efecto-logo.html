@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prueba · Partículas → logo CC Studio</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+  /* Página de PRUEBA del efecto "partículas forman el logo".
+     Réplica mínima del hero real para juzgar el efecto en contexto.
+     Si convence, el bloque JS se integra en prototipo-cc.js (v53). */
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root {
+    --bg:#0A0A0B; --fg:#F3F3F4; --muted:#8C8C92; --accent:#5B8BB0;
+  }
+  body { background:var(--bg); color:var(--fg); font-family:'Inter',sans-serif; overflow-x:clip; }
+
+  .hero { position:relative; min-height:100svh; display:flex; align-items:flex-end; overflow:hidden; }
+  .hero__bg { position:absolute; inset:0; pointer-events:none;
+    -webkit-mask-image:linear-gradient(180deg,#fff calc(100% - 180px),transparent 100%);
+    mask-image:linear-gradient(180deg,#fff calc(100% - 180px),transparent 100%);
+  }
+  .hero__bg canvas { position:absolute; inset:0; width:100%; height:100%; }
+  .hero__shade { position:absolute; inset:0;
+    background:linear-gradient(180deg,rgba(10,10,11,.30) 0%,rgba(10,10,11,.02) 40%,rgba(10,10,11,.55) 100%);
+  }
+  .hero__content { position:relative; z-index:2; max-width:42rem; padding:140px clamp(24px,5vw,48px) clamp(44px,8vh,72px); }
+  .meta { font-family:ui-monospace,Menlo,monospace; font-size:.78rem; letter-spacing:.1em; color:var(--muted); margin-bottom:16px; }
+  .titles { position:relative; }
+  .title {
+    font-family:'Poppins',sans-serif; font-weight:700;
+    font-size:clamp(2.4rem,5.6vw,3.9rem); line-height:1.04; letter-spacing:-.025em;
+    max-width:16ch; margin-bottom:18px;
+  }
+  .title em { font-style:italic; color:var(--accent); }
+  .title--phase { position:absolute; inset:0; margin:0; opacity:0; pointer-events:none; }
+  .sub { color:rgba(243,243,244,.62); font-size:clamp(.92rem,1.2vw,1rem); line-height:1.65; max-width:28rem; margin-bottom:28px; }
+  .cta { display:flex; gap:12px; flex-wrap:wrap; }
+  .btn-white, .btn-glass { display:inline-block; font-weight:500; font-size:clamp(.9rem,1.1vw,1rem);
+    padding:13px 28px; border-radius:999px; text-decoration:none; }
+  .btn-white { background:#fff; color:var(--bg); }
+  .btn-glass { color:var(--fg); border:1px solid rgba(255,255,255,.18); }
+
+  .after { min-height:60vh; display:grid; place-content:center; color:var(--muted);
+    font-family:ui-monospace,Menlo,monospace; font-size:.85rem; letter-spacing:.1em; }
+  .note { position:fixed; top:14px; left:14px; z-index:10; font-family:ui-monospace,Menlo,monospace;
+    font-size:.7rem; letter-spacing:.12em; color:var(--muted); text-transform:uppercase; }
+</style>
+</head>
+<body>
+
+<p class="note">página de prueba · partículas → logo</p>
+
+<section class="hero">
+  <div class="hero__bg" aria-hidden="true">
+    <canvas id="heroMorph"></canvas>
+    <div class="hero__shade"></div>
+  </div>
+  <div class="hero__content">
+    <p class="meta">( estudio de diseño web — crea, conecta, crece )</p>
+    <div class="titles">
+      <h1 class="title" data-phase="0">Creamos webs<br>que <em>venden</em>.</h1>
+      <div class="title title--phase" data-phase="1" aria-hidden="true">Software a medida<br>que <em>trabaja por ti</em>.</div>
+      <div class="title title--phase" data-phase="2" aria-hidden="true">Crea, conecta,<br><em>crece</em>.</div>
+    </div>
+    <p class="sub">Diseño web moderno para pequeños negocios y autónomos. Packs desde 250€ —pago único—, con SEO incluido.</p>
+    <div class="cta">
+      <a class="btn-white" href="#fin">Pide presupuesto gratis →</a>
+      <a class="btn-glass" href="#fin">Ver trabajos</a>
+    </div>
+  </div>
+</section>
+
+<section class="after" id="fin"><p>[ aquí seguiría «archivo de proyectos» ]</p></section>
+
+<script src="vendor/lenis.min.js"></script>
+<script src="vendor/gsap.min.js"></script>
+<script src="vendor/ScrollTrigger.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let lenis = null;
+  if (typeof Lenis !== 'undefined' && !reduce) {
+    lenis = new Lenis({ duration: 1.2 });
+    (function raf(time){ lenis.raf(time); requestAnimationFrame(raf); })(0);
+  }
+
+  /* ---------- Hero morph v53: partículas que forman el logo ----------
+     Miles de puntos blancos dispersos convergen, según se scrollea,
+     hacia los píxeles reales del logotipo CC Studio (redibujado en un
+     canvas oculto con las fuentes de la web y muestreado). El punto de
+     marca sale azul él solo porque el color se hereda del píxel. */
+  const ccMorph = (function () {
+    const canvas = document.getElementById('heroMorph');
+    if (!canvas) return null;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return null;
+
+    const clamp  = (v,a,b) => Math.min(b, Math.max(a, v));
+    const lerp   = (a,b,t) => a + (b - a) * t;
+    const smooth = (a,b,x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+    let seed = 20260728 >>> 0;
+    const rand = () => {
+      seed = (seed + 0x6D2B79F5) | 0;
+      let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+
+    /* 1) Redibujar el logo en un canvas oculto (viewBox 360×300 a 2x) */
+    const LW = 720, LH = 600;
+    function paintLogo() {
+      const off = document.createElement('canvas');
+      off.width = LW; off.height = LH;
+      const o = off.getContext('2d');
+      try { o.letterSpacing = '-12px'; } catch (e) {}
+      o.font = "800 300px Poppins, Arial, sans-serif";
+      o.fillStyle = '#F3F3F4';
+      o.fillText('CC', 68, 364);
+      try { o.letterSpacing = '0px'; } catch (e) {}
+      o.beginPath(); o.arc(600, 140, 18, 0, Math.PI * 2);
+      o.fillStyle = '#5B8BB0'; o.fill();
+      o.fillStyle = '#F3F3F4';
+      o.fillRect(80, 420, 560, 4);
+      // STUDIO en Poppins (geométrica y redonda) y más grande: legible en puntos
+      try { o.letterSpacing = '26px'; } catch (e) {}
+      o.font = "600 60px Poppins, Arial, sans-serif";
+      o.fillText('STUDIO', 84, 520);
+      return o.getImageData(0, 0, LW, LH);
+    }
+
+    /* 2) Muestrear píxeles opacos → destinos de partícula.
+       Muestreo por zonas: el punto azul y los textos pequeños necesitan
+       más resolución que las letras CC (enormes) para leerse igual. */
+    let P = [];              // partículas
+    let boxRatio = LH / LW;  // alto/ancho de la caja real del logo
+
+    // Sprites circulares por color: puntos redondos sin coste por frame
+    const SPRITES = {};
+    function sprite(r, g, b) {
+      const k = r + ',' + g + ',' + b;
+      if (SPRITES[k]) return SPRITES[k];
+      const c = document.createElement('canvas');
+      c.width = c.height = 16;
+      const s = c.getContext('2d');
+      s.fillStyle = `rgb(${r},${g},${b})`;
+      s.beginPath(); s.arc(8, 8, 7, 0, Math.PI * 2); s.fill();
+      SPRITES[k] = c;
+      return c;
+    }
+    function buildParticles() {
+      const img = paintLogo();
+      const mobile = window.innerWidth < 768;
+      const maxN = mobile ? 1600 : 3200;
+      const inDot = (x, y) => x > 570 && x < 630 && y > 110 && y < 170;
+      const inCC  = (x, y) => x > 55 && x < 575 && y > 140 && y < 390;
+
+      const sample = (region, step) => {
+        const out = [];
+        for (let y = 0; y < LH; y += step) {
+          for (let x = 0; x < LW; x += step) {
+            if (!region(x, y)) continue;
+            const i = (y * LW + x) * 4;
+            if (img.data[i + 3] > 128) out.push([x, y, img.data[i], img.data[i + 1], img.data[i + 2]]);
+          }
+        }
+        return out;
+      };
+
+      // Punto azul: máxima densidad · resto de rasgos finos: densidad alta
+      const dotPts  = sample(inDot, 2);
+      const finePts = sample((x, y) => !inDot(x, y) && !inCC(x, y), mobile ? 3 : 2);
+      // CC: paso adaptativo hasta encajar en el presupuesto restante
+      const budget = Math.max(400, maxN - dotPts.length - finePts.length);
+      let step = mobile ? 5 : 4, ccPts = [];
+      do {
+        ccPts = sample(inCC, step);
+        step++;
+      } while (ccPts.length > budget && step < 14);
+
+      // Caja real del dibujo: centra el logo por lo que existe de verdad
+      const all = dotPts.concat(finePts, ccPts);
+      let minX = 1e9, maxX = -1e9, minY = 1e9, maxY = -1e9;
+      for (const [x, y] of all) {
+        if (x < minX) minX = x; if (x > maxX) maxX = x;
+        if (y < minY) minY = y; if (y > maxY) maxY = y;
+      }
+      const bcx = (minX + maxX) / 2, bcy = (minY + maxY) / 2;
+      boxRatio = (maxY - minY) / (maxX - minX);
+
+      P = all.map(([x, y, r, g, b]) => ({
+        tx: (x - bcx) / (maxX - minX),               // destino normalizado (centro 0,0)
+        ty: (y - bcy) / (maxX - minX),               // misma escala en ambos ejes
+        sx: rand() * 1.3 - 0.65, sy: rand() * 1.3 - 0.65, // origen disperso (fracción del lienzo)
+        delay: rand() * 0.45,
+        size: 1.3 + rand() * 1.5,
+        spr: sprite(r, g, b),
+        tw: rand() * Math.PI * 2,
+        r, g, b
+      }));
+    }
+
+    let W = 0, H = 0, last = 0;
+    function resize() {
+      const dpr = Math.min(window.devicePixelRatio || 1, window.innerWidth < 768 ? 1.5 : 2);
+      W = canvas.clientWidth; H = canvas.clientHeight;
+      canvas.width = Math.round(W * dpr);
+      canvas.height = Math.round(H * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      draw(last);
+    }
+
+    function draw(t) {
+      last = t = clamp(t, 0, 1);
+      // Fondo de la marca (se enfría un punto al final, como en v52)
+      const cool = smooth(0.6, 1, t);
+      const bg = ctx.createLinearGradient(0, 0, 0, H);
+      bg.addColorStop(0, `rgb(${10 + cool * 2},${10 + cool * 5},${11 + cool * 9})`);
+      bg.addColorStop(1, `rgb(${20 - cool * 4},${20 + cool},${22 + cool * 5})`);
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, W, H);
+
+      // Composición: logo a la derecha en escritorio, centrado en móvil.
+      // Se ancla de forma que su borde inferior quede SIEMPRE por encima
+      // de la zona del copy (meta + titular), sin solaparse.
+      const cx = W > 900 ? W * 0.62 : W * 0.5;
+      let logoW = Math.min(W * (W > 900 ? 0.42 : 0.8), 680);
+      let logoH = logoW * boxRatio;
+      const maxLogoH = H * 0.44;
+      if (logoH > maxLogoH) { const f = maxLogoH / logoH; logoW *= f; logoH *= f; }
+      const cy = H * 0.53 - logoH / 2 - H * 0.02;
+
+      const formT = smooth(0.04, 0.82, t);          // progreso global de formación
+      const settle = smooth(0.78, 1, t);            // logo asentado
+      const scale = 1 + 0.03 * settle;
+
+      // Halo azul suave detrás del logo cuando se asienta
+      if (settle > 0.01) {
+        const halo = ctx.createRadialGradient(cx, cy, 0, cx, cy, logoW * 0.75);
+        halo.addColorStop(0, `rgba(91,139,176,${0.16 * settle})`);
+        halo.addColorStop(1, 'rgba(91,139,176,0)');
+        ctx.fillStyle = halo;
+        ctx.fillRect(0, 0, W, H);
+      }
+
+      for (const p of P) {
+        const q = smooth(p.delay, p.delay + 0.55, formT);   // progreso individual
+        // deriva orgánica mientras está suelta
+        const wobX = Math.sin(p.tw + t * 5) * 14 * (1 - q);
+        const wobY = Math.cos(p.tw * 1.3 + t * 4) * 12 * (1 - q);
+        const x = lerp(cx + p.sx * W, cx + p.tx * logoW * scale, q) + wobX;
+        const y = lerp(cy + p.sy * H, cy + p.ty * logoW * scale, q) + wobY;
+        // parpadeo sutil sueltas → alpha estable formadas
+        const twinkle = 0.45 + 0.35 * Math.sin(p.tw + t * 8) ** 2;
+        const a = lerp(twinkle * 0.8, 0.95, q);
+        const s = p.size * lerp(1, 0.85, q);
+        ctx.globalAlpha = a;
+        ctx.drawImage(p.spr, x - s / 2, y - s / 2, s, s);
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    // Las fuentes deben estar listas antes de muestrear el logo
+    const boot = () => { buildParticles(); resize(); };
+    if (document.fonts && document.fonts.ready) {
+      Promise.all([
+        document.fonts.load("800 300px Poppins"),
+        document.fonts.ready
+      ]).then(boot).catch(boot);
+    } else boot();
+
+    let rTimer;
+    addEventListener('resize', () => { clearTimeout(rTimer); rTimer = setTimeout(resize, 150); }, { passive: true });
+    return { draw };
+  })();
+
+  /* ---------- Pin + fases del titular (idéntico a v52) ---------- */
+  (function () {
+    if (!window.gsap || !window.ScrollTrigger || reduce) {
+      // Reduced motion: logo ya formado, sin pin
+      if (ccMorph) setTimeout(() => ccMorph.draw(1), 400);
+      return;
+    }
+    gsap.registerPlugin(ScrollTrigger);
+    if (lenis) lenis.on('scroll', ScrollTrigger.update);
+
+    if (ccMorph) {
+      const phases = Array.from(document.querySelectorAll('.titles .title'));
+      const RANGES = [[0, 0.30], [0.36, 0.64], [0.72, 1]];
+      const smooth = (a, b, x) => {
+        const t = Math.min(1, Math.max(0, (x - a) / (b - a)));
+        return t * t * (3 - 2 * t);
+      };
+      const crossfade = (p) => {
+        phases.forEach((el, i) => {
+          const [a, b] = RANGES[i];
+          const inA  = i === 0 ? 1 : smooth(a, a + 0.07, p);
+          const outA = i === phases.length - 1 ? 1 : 1 - smooth(b - 0.07, b, p);
+          const alpha = Math.min(inA, outA);
+          el.style.opacity = alpha.toFixed(3);
+          el.style.transform = `translateY(${((1 - alpha) * 16).toFixed(1)}px)`;
+          el.style.filter = `blur(${((1 - alpha) * 6).toFixed(1)}px)`;
+          el.style.visibility = alpha > 0.005 ? 'visible' : 'hidden';
+        });
+      };
+      ScrollTrigger.create({
+        trigger: '.hero',
+        start: 'top top',
+        end: window.innerWidth < 768 ? '+=220%' : '+=260%',
+        pin: true,
+        scrub: 0.35,
+        anticipatePin: 1,
+        onUpdate: (self) => { ccMorph.draw(self.progress); crossfade(self.progress); }
+      });
+      addEventListener('load', () => ScrollTrigger.refresh());
+    }
+  })();
+});
+</script>
+</body>
+</html>
