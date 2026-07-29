@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>La estantería · Archivo de proyectos — CC Studio</title>
+<meta name="description" content="El archivo de proyectos de CC Studio como una biblioteca 3D: cada web que hemos construido es un libro en la estantería.">
+<meta name="robots" content="noindex">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+  /* ============================================================
+     La estantería — biblioteca 3D del archivo de proyectos
+     Minimalismo editorial cálido: papel crema, nogal y serifa.
+     ============================================================ */
+  :root {
+    --paper:  #F2EBDD;
+    --ink:    #2B241C;
+    --muted:  #8A7E6C;
+    --walnut: #5C4432;
+    --foil:   #A98B54;
+    --accent: #5B8BB0;
+    --serif:  Georgia, 'Times New Roman', serif;
+    --mono:   ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    --sans:   'Inter', sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    background: var(--paper); color: var(--ink);
+    font-family: var(--sans); overflow: hidden;
+  }
+  canvas#shelf { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+  ::selection { background: var(--foil); color: #fff; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+
+  .mono { font-family: var(--mono); font-size: .68rem; letter-spacing: .14em; }
+
+  /* Barra superior */
+  .bar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 10;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px clamp(18px, 3vw, 36px);
+    pointer-events: none;
+  }
+  .bar > * { pointer-events: auto; }
+  .brand {
+    display: flex; align-items: baseline; gap: 8px; text-decoration: none;
+    color: var(--ink); font-weight: 700; font-size: 1.15rem; letter-spacing: -.04em;
+    font-family: 'Poppins', sans-serif;
+  }
+  .brand b { color: var(--accent); }
+  .brand small { font-family: var(--mono); font-size: .58rem; letter-spacing: .32em; font-weight: 400; color: var(--muted); }
+  .bar__back {
+    text-decoration: none; color: var(--ink);
+    font-family: var(--mono); font-size: .7rem; letter-spacing: .1em;
+    border: 1px solid rgba(43,36,28,.25); border-radius: 999px; padding: 9px 16px;
+    background: rgba(242,235,221,.7); backdrop-filter: blur(6px);
+    transition: border-color .2s;
+  }
+  .bar__back:hover { border-color: var(--ink); }
+
+  /* Título editorial */
+  .masthead {
+    position: fixed; top: clamp(64px, 10vh, 96px); left: 0; right: 0; z-index: 5;
+    text-align: center; pointer-events: none;
+  }
+  .masthead .mono { color: var(--muted); }
+  .masthead h1 {
+    font-family: var(--serif); font-weight: 400; font-style: italic;
+    font-size: clamp(1.7rem, 3.4vw, 2.7rem); letter-spacing: .01em;
+    color: var(--ink); margin-top: 6px;
+  }
+
+  /* Pista de uso */
+  .hint {
+    position: fixed; bottom: 104px; left: 50%; transform: translateX(-50%);
+    z-index: 5; color: var(--muted); pointer-events: none;
+    transition: opacity .6s ease; text-align: center;
+  }
+  .hint.off { opacity: 0; }
+
+  /* Navegación inferior: flechas + marcadores */
+  .dock {
+    position: fixed; bottom: 34px; left: 50%; transform: translateX(-50%);
+    z-index: 10; display: flex; align-items: center; gap: 18px;
+  }
+  .dock__btn {
+    width: 42px; height: 42px; border-radius: 50%;
+    border: 1px solid rgba(43,36,28,.3); background: rgba(242,235,221,.8);
+    color: var(--ink); font-size: 1rem; cursor: pointer;
+    transition: border-color .2s, transform .2s;
+  }
+  .dock__btn:hover { border-color: var(--ink); transform: translateY(-2px); }
+  .markers { display: flex; gap: 12px; }
+  .marker {
+    width: 12px; height: 12px; border-radius: 50%;
+    border: 1px solid rgba(43,36,28,.45); background: transparent; cursor: pointer;
+    transition: background .25s, transform .25s;
+  }
+  .marker:hover { transform: scale(1.3); }
+  .marker.on { background: var(--ink); border-color: var(--ink); }
+
+  /* Panel de inspección */
+  .panel {
+    position: fixed; z-index: 12;
+    right: clamp(18px, 4vw, 56px); top: 50%;
+    transform: translateY(-50%) translateX(24px);
+    width: min(340px, calc(100vw - 36px));
+    background: #FBF7EE; border: 1px solid rgba(43,36,28,.18);
+    box-shadow: 0 30px 70px -30px rgba(43,36,28,.45);
+    padding: 26px 26px 24px; border-radius: 4px;
+    opacity: 0; visibility: hidden;
+    transition: opacity .45s ease, transform .45s cubic-bezier(.22,1,.36,1), visibility .45s;
+  }
+  .panel.open { opacity: 1; visibility: visible; transform: translateY(-50%) translateX(0); }
+  .panel .mono { color: var(--foil); display: block; }
+  .panel h2 {
+    font-family: var(--serif); font-weight: 400; font-size: 1.7rem;
+    line-height: 1.15; margin: 8px 0 10px; color: var(--ink);
+  }
+  .panel p { font-family: var(--mono); font-size: .66rem; letter-spacing: .1em; color: var(--muted); line-height: 2; }
+  .panel__actions { display: flex; gap: 10px; margin-top: 18px; }
+  .panel__visit {
+    text-decoration: none; background: var(--ink); color: var(--paper);
+    font-size: .82rem; font-weight: 600; padding: 11px 20px; border-radius: 999px;
+    transition: transform .2s;
+  }
+  .panel__visit:hover { transform: translateY(-2px); }
+  .panel__close {
+    border: 1px solid rgba(43,36,28,.3); background: transparent; color: var(--ink);
+    font-size: .8rem; padding: 11px 16px; border-radius: 999px; cursor: pointer;
+    transition: border-color .2s;
+  }
+  .panel__close:hover { border-color: var(--ink); }
+  .panel__hint { margin-top: 14px; color: var(--muted); }
+
+  @media (max-width: 640px) {
+    .masthead h1 { font-size: 1.5rem; }
+    .panel { right: 50%; top: auto; bottom: 92px; transform: translate(50%, 16px); }
+    .panel.open { transform: translate(50%, 0); }
+    .hint { bottom: 150px; width: 90vw; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .panel, .hint, .dock__btn, .marker, .panel__visit { transition: none; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="shelf" aria-label="Estantería 3D con los proyectos del estudio como libros. Usa las flechas para recorrerla y los marcadores para saltar a cada proyecto." role="img"></canvas>
+
+<header class="bar">
+  <a class="brand" href="index.html">CC<b>.</b><small>STUDIO</small></a>
+  <a class="bar__back" href="index.html#works">← volver a la web</a>
+</header>
+
+<div class="masthead">
+  <span class="mono">[ 01 ]  ( archivo de proyectos )</span>
+  <h1>La estantería completa</h1>
+</div>
+
+<p class="hint mono" id="hint">arrastra · rueda · flechas — toca un lomo para sacar el libro</p>
+
+<nav class="dock" aria-label="Recorrer la estantería">
+  <button class="dock__btn" id="prev" aria-label="Retroceder">←</button>
+  <div class="markers" id="markers" role="group" aria-label="Proyectos"></div>
+  <button class="dock__btn" id="next" aria-label="Avanzar">→</button>
+</nav>
+
+<aside class="panel" id="panel" aria-live="polite">
+  <span class="mono" id="pNum">01</span>
+  <h2 id="pTitle"></h2>
+  <p id="pSub"></p>
+  <div class="panel__actions">
+    <a class="panel__visit" id="pLink" href="#" target="_blank" rel="noopener">Ver web ↗</a>
+    <button class="panel__close" id="pClose">Cerrar ✕</button>
+  </div>
+  <p class="panel__hint mono">arrastra para girar el libro · rueda para acercar</p>
+</aside>
+
+<script src="vendor/gsap.min.js"></script>
+<script type="importmap">{ "imports": { "three": "./vendor/three.module.min.js" } }</script>
+<script type="module">
+import * as THREE from 'three';
+
+/* ---------- datos ---------- */
+const PROJECTS = [
+  { num:'01', title:'La Brisa Salou',       sub:'Construcción web · Carta digital · SEO local',        url:'https://labrisasalou.com',       img:'img/portfolio/labrisa.webp',        cloth:'#77897C' },
+  { num:'02', title:'Rent a Boat Salou',    sub:'Construcción web · Gestor de reservas · SEO local',    url:'https://rentaboatsalou.com',     img:'img/portfolio/rentaboat-salou.webp',cloth:'#5B7A96' },
+  { num:'03', title:'Boat 4 Rent',          sub:'Construcción web · Catálogo · Tarifas online',         url:'https://boat4renttarragona.com', img:'img/portfolio/boat4rent.webp',      cloth:'#55617A' },
+  { num:'04', title:'Pizzería Da Luca',     sub:'Construcción web · Carta digital · Pedidos',           url:'https://pizzeriadaluca.es',      img:'img/portfolio/daluca.webp',         cloth:'#9C6B4F' },
+  { num:'05', title:'Le Massage',           sub:'Construcción web · Reservas · Mailing · Publicidad',   url:'https://lemassage.es',           img:'img/portfolio/lemassage.webp',      cloth:'#87707F' },
+];
+const DECOYS = ['#8C8474','#6E7B72','#A89A7E','#75655A','#5E6B63','#93857B','#6B6255','#7E8B95','#9A8D97','#556058','#8B7D62','#77706B','#63707C','#867B6B'];
+const REAL_SLOTS = [2, 5, 9, 13, 16];              // posiciones de los 5 reales entre 19
+const FOIL = '#B9975B', PAPER_EDGE = '#EFE5CF';
+
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const DUR = reduce ? 0 : 0.7;
+
+let seed = 20260729 >>> 0;
+const rand = () => {
+  seed = (seed + 0x6D2B79F5) | 0;
+  let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+  t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+};
+
+/* ---------- texturas de tela con lienzo 2D ---------- */
+function clothBase(ctx, w, h, color) {
+  ctx.fillStyle = color; ctx.fillRect(0, 0, w, h);
+  const img = ctx.getImageData(0, 0, w, h), d = img.data;
+  for (let i = 0; i < d.length; i += 4) {
+    const n = (Math.random() - 0.5) * 14;
+    d[i] += n; d[i+1] += n; d[i+2] += n;
+  }
+  ctx.putImageData(img, 0, 0);
+}
+function makeSpine(book) {
+  const c = document.createElement('canvas'); c.width = 128; c.height = 512;
+  const x = c.getContext('2d');
+  clothBase(x, 128, 512, book.cloth);
+  x.strokeStyle = FOIL; x.fillStyle = FOIL; x.lineWidth = 2;
+  x.strokeRect(14, 16, 100, 480);
+  if (book.project) {
+    x.save(); x.translate(64, 256); x.rotate(Math.PI / 2);
+    x.font = 'italic 34px Georgia, serif'; x.textAlign = 'center'; x.textBaseline = 'middle';
+    x.fillText(book.project.title, 0, 0); x.restore();
+    x.font = '20px Georgia, serif'; x.textAlign = 'center';
+    x.fillText(book.project.num, 64, 52);
+    x.beginPath(); x.arc(64, 470, 7, 0, Math.PI * 2); x.stroke();
+  } else {
+    const m = Math.floor(rand() * 3);
+    x.beginPath();
+    if (m === 0) { x.arc(64, 90, 16, 0, Math.PI * 2); x.arc(64, 422, 16, 0, Math.PI * 2); }
+    if (m === 1) { x.moveTo(34, 100); x.lineTo(94, 100); x.moveTo(34, 412); x.lineTo(94, 412); }
+    if (m === 2) { x.moveTo(64, 74); x.lineTo(84, 100); x.lineTo(64, 126); x.lineTo(44, 100); x.closePath(); }
+    x.stroke();
+  }
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4;
+  return t;
+}
+function makeCover(book) {
+  const c = document.createElement('canvas'); c.width = 512; c.height = 640;
+  const x = c.getContext('2d');
+  clothBase(x, 512, 640, book.cloth);
+  x.strokeStyle = FOIL; x.fillStyle = FOIL; x.lineWidth = 3;
+  x.strokeRect(26, 26, 460, 588);
+  x.lineWidth = 1; x.strokeRect(38, 38, 436, 564);
+  if (book.project) {
+    x.font = 'italic 44px Georgia, serif'; x.textAlign = 'center';
+    x.fillText(book.project.title, 256, 110, 400);
+    x.font = '16px Georgia, serif';
+    x.fillText('— CC STUDIO —', 256, 580);
+    // lámina con la captura de la web (se dibuja al cargar)
+    const img = new Image();
+    img.onload = () => {
+      const fw = 360, fh = 340, fx = (512 - fw) / 2, fy = 160;
+      x.fillStyle = PAPER_EDGE; x.fillRect(fx - 8, fy - 8, fw + 16, fh + 16);
+      const s = Math.max(fw / img.width, fh / img.height);
+      const sw = fw / s, sh = fh / s;
+      x.drawImage(img, (img.width - sw) / 2, (img.height - sh) / 2, sw, sh, fx, fy, fw, fh);
+      x.strokeStyle = FOIL; x.lineWidth = 3; x.strokeRect(fx - 8, fy - 8, fw + 16, fh + 16);
+      t.needsUpdate = true;
+    };
+    img.src = book.project.img;
+  } else {
+    x.beginPath(); x.lineWidth = 2;
+    const m = Math.floor(rand() * 3);
+    if (m === 0) x.arc(256, 320, 90, 0, Math.PI * 2);
+    if (m === 1) { x.moveTo(256, 210); x.lineTo(366, 320); x.lineTo(256, 430); x.lineTo(146, 320); x.closePath(); }
+    if (m === 2) { for (let i = 0; i < 4; i++) { x.moveTo(150, 250 + i * 50); x.lineTo(362, 250 + i * 50); } }
+    x.stroke();
+  }
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4;
+  return t;
+}
+
+/* ---------- escena ---------- */
+const canvas = document.getElementById('shelf');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color('#F2EBDD');
+scene.fog = new THREE.Fog('#F2EBDD', 6, 12);
+
+const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 30);
+
+scene.add(new THREE.HemisphereLight(0xfff6e8, 0x9a8a74, 1.05));
+const sun = new THREE.DirectionalLight(0xffeed8, 1.6);
+sun.position.set(2.5, 4, 3);
+sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048);
+scene.add(sun);
+
+/* libros */
+const books = [];
+let cursor = 0;
+const GAP = 0.015;
+for (let i = 0, di = 0; i < 19; i++) {
+  const slot = REAL_SLOTS.indexOf(i);
+  const project = slot >= 0 ? PROJECTS[slot] : null;
+  const h = project ? 1.16 + rand() * 0.06 : 0.92 + rand() * 0.22;
+  const w = project ? 0.16 + rand() * 0.03 : 0.09 + rand() * 0.11;
+  const d = 0.66 + rand() * 0.1;
+  const book = { project, cloth: project ? project.cloth : DECOYS[di++ % DECOYS.length] };
+  const cloth = new THREE.MeshStandardMaterial({ color: book.cloth, roughness: 0.85 });
+  const pages = new THREE.MeshStandardMaterial({ color: PAPER_EDGE, roughness: 0.9 });
+  const cover = new THREE.MeshStandardMaterial({ map: makeCover(book), roughness: 0.82 });
+  const spine = new THREE.MeshStandardMaterial({ map: makeSpine(book), roughness: 0.82 });
+  const mesh = new THREE.Mesh(
+    new THREE.BoxGeometry(w, h, d),
+    [cover, cloth, pages, cloth, spine, pages]   // +x -x +y -y +z -z
+  );
+  mesh.castShadow = true; mesh.receiveShadow = true;
+  const g = new THREE.Group();
+  g.add(mesh);
+  g.position.set(cursor + w / 2, h / 2, 0);
+  if (REAL_SLOTS.includes(i + 1) || slot >= 0) cursor += w + GAP; else cursor += w + GAP;
+  if ((i + 1) % 5 === 0) cursor += 0.14;        // respiros entre grupos
+  cursor += 0;
+  g.userData = { project, baseX: g.position.x, baseY: g.position.y, w, h, mesh, slot };
+  scene.add(g);
+  books.push(g);
+}
+const shelfLen = cursor;
+
+/* estantería de nogal */
+const walnut = new THREE.MeshStandardMaterial({ color: '#5C4432', roughness: 0.6 });
+const board = new THREE.Mesh(new THREE.BoxGeometry(shelfLen + 1.6, 0.07, 1.05), walnut);
+board.position.set(shelfLen / 2, -0.035, -0.02);
+board.receiveShadow = true;
+scene.add(board);
+const lip = new THREE.Mesh(new THREE.BoxGeometry(shelfLen + 1.6, 0.30, 0.06), walnut);
+lip.position.set(shelfLen / 2, -0.22, 0.44);
+scene.add(lip);
+const wall = new THREE.Mesh(
+  new THREE.PlaneGeometry(shelfLen + 14, 10),
+  new THREE.MeshStandardMaterial({ color: '#EDE4D2', roughness: 1 })
+);
+wall.position.set(shelfLen / 2, 2, -0.62);
+wall.receiveShadow = true;
+scene.add(wall);
+
+/* ---------- estado ---------- */
+let scroll = books[REAL_SLOTS[0]].userData.baseX, scrollT = scroll;
+const minX = books[0].userData.baseX, maxX = books[18].userData.baseX;
+let mode = 'browse';                 // 'browse' | 'inspect'
+let selected = null, hovered = null;
+let zoomT = 1.35;
+const zoomBase = () => innerWidth < innerHeight ? 1.75 : 1.35;   // en vertical, más aire
+
+const raycaster = new THREE.Raycaster();
+const pointer = new THREE.Vector2(-2, -2);
+/* gancho de depuración (inocuo en producción) */
+window.__shelf = { books, camera, pointer, raycaster, state: () => ({ mode, hovered: hovered?.userData?.project?.title ?? null, scroll, scrollT }) };
+
+function resize() {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+}
+addEventListener('resize', resize, { passive: true });
+resize();
+
+/* ---------- interacción ---------- */
+const hint = document.getElementById('hint');
+let hinted = false;
+const useHint = () => { if (!hinted) { hinted = true; hint.classList.add('off'); } };
+
+let dragging = false, dragMoved = 0, px = 0, py = 0;
+canvas.addEventListener('pointerdown', e => {
+  dragging = true; dragMoved = 0; px = e.clientX; py = e.clientY;
+  canvas.setPointerCapture(e.pointerId);
+});
+canvas.addEventListener('pointermove', e => {
+  pointer.set((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
+  if (!dragging) return;
+  const dx = e.clientX - px, dy = e.clientY - py;
+  px = e.clientX; py = e.clientY;
+  dragMoved += Math.abs(dx) + Math.abs(dy);
+  if (mode === 'browse') { scrollT = clamp(scrollT - dx * 0.004, minX, maxX); useHint(); }
+  else if (selected) {
+    selected.rotation.y += dx * 0.008;
+    selected.rotation.x = clamp(selected.rotation.x + dy * 0.005, -0.5, 0.5);
+  }
+});
+const endDrag = () => { dragging = false; };
+canvas.addEventListener('pointerup', endDrag);
+canvas.addEventListener('pointercancel', endDrag);
+
+canvas.addEventListener('wheel', e => {
+  e.preventDefault();
+  if (mode === 'browse') {
+    scrollT = clamp(scrollT + (e.deltaY + e.deltaX) * 0.0016, minX, maxX);
+    useHint();
+  } else {
+    zoomT = clamp(zoomT + e.deltaY * 0.0012, 0.85, 1.9);
+  }
+}, { passive: false });
+
+addEventListener('keydown', e => {
+  if (e.key === 'Escape' && mode === 'inspect') closeBook();
+  if (mode !== 'browse') return;
+  if (e.key === 'ArrowRight') { scrollT = clamp(scrollT + 0.55, minX, maxX); useHint(); }
+  if (e.key === 'ArrowLeft')  { scrollT = clamp(scrollT - 0.55, minX, maxX); useHint(); }
+});
+
+canvas.addEventListener('click', () => {
+  if (dragMoved > 6) return;                       // era un arrastre
+  if (mode === 'inspect') return;
+  if (hovered) openBook(hovered);
+});
+
+document.getElementById('prev').addEventListener('click', () => { if (mode === 'browse') scrollT = clamp(scrollT - 0.9, minX, maxX); });
+document.getElementById('next').addEventListener('click', () => { if (mode === 'browse') scrollT = clamp(scrollT + 0.9, minX, maxX); });
+
+/* marcadores */
+const markersEl = document.getElementById('markers');
+const markerBtns = PROJECTS.map((p, i) => {
+  const b = document.createElement('button');
+  b.className = 'marker'; b.title = p.title; b.setAttribute('aria-label', p.title);
+  b.addEventListener('click', () => {
+    if (mode === 'inspect') closeBook();
+    scrollT = books[REAL_SLOTS[i]].userData.baseX;
+    useHint();
+  });
+  markersEl.appendChild(b);
+  return b;
+});
+
+/* ---------- abrir / cerrar libro ---------- */
+const panel = document.getElementById('panel');
+function openBook(g) {
+  mode = 'inspect'; selected = g;
+  const p = g.userData.project;
+  document.getElementById('pNum').textContent = p.num;
+  document.getElementById('pTitle').textContent = p.title;
+  document.getElementById('pSub').textContent = p.sub;
+  document.getElementById('pLink').href = p.url;
+  panel.classList.add('open');
+  scrollT = g.userData.baseX;
+  zoomT = zoomBase();
+  gsap.to(g.position, { x: g.userData.baseX, y: 0.78, z: 1.05, duration: DUR, ease: 'power3.out' });
+  gsap.to(g.rotation, { y: -Math.PI / 2 + 0.12, x: 0, duration: DUR, ease: 'power3.out' });
+}
+function closeBook() {
+  const g = selected; if (!g) return;
+  panel.classList.remove('open');
+  gsap.to(g.position, { x: g.userData.baseX, y: g.userData.baseY, z: 0, duration: DUR, ease: 'power3.inOut' });
+  gsap.to(g.rotation, { x: 0, y: 0, duration: DUR, ease: 'power3.inOut',
+    onComplete: () => { mode = 'browse'; selected = null; } });
+  if (reduce) { mode = 'browse'; selected = null; }
+}
+document.getElementById('pClose').addEventListener('click', closeBook);
+
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+
+/* ---------- bucle ---------- */
+let running = true;
+document.addEventListener('visibilitychange', () => {
+  running = document.visibilityState === 'visible';
+  if (running) tick();
+});
+
+function tick() {
+  if (!running) return;
+  requestAnimationFrame(tick);
+
+  const k = reduce ? 1 : 0.09;
+  scroll += (scrollT - scroll) * k;
+
+  const camZ = mode === 'inspect' ? 2.05 * zoomT : 3.35;
+  const camY = mode === 'inspect' ? 0.8 : 0.85;
+  camera.position.set(scroll, camY, camZ);
+  camera.lookAt(scroll, mode === 'inspect' ? 0.76 : 0.48, 0);
+  sun.position.set(scroll + 2.5, 4, 3);
+  sun.target.position.set(scroll, 0, 0);
+  sun.target.updateMatrixWorld();
+
+  /* hover con raycast (solo en browse) */
+  if (mode === 'browse') {
+    raycaster.setFromCamera(pointer, camera);
+    const hits = raycaster.intersectObjects(books.map(b => b.userData.mesh));
+    const g = hits.length ? hits[0].object.parent : null;
+    const target = g && g.userData.project ? g : null;
+    if (target !== hovered) {
+      if (hovered) gsap.to(hovered.position, { z: 0, duration: 0.35, ease: 'power2.out' });
+      hovered = target;
+      if (hovered) gsap.to(hovered.position, { z: 0.14, duration: 0.35, ease: 'power2.out' });
+      canvas.style.cursor = hovered ? 'pointer' : 'grab';
+    }
+    /* marcador activo = proyecto más cercano */
+    let ni = 0, nd = 1e9;
+    REAL_SLOTS.forEach((s, i) => {
+      const d = Math.abs(books[s].userData.baseX - scroll);
+      if (d < nd) { nd = d; ni = i; }
+    });
+    markerBtns.forEach((b, i) => b.classList.toggle('on', i === ni));
+  }
+
+  renderer.render(scene, camera);
+}
+tick();
+</script>
+</body>
+</html>
