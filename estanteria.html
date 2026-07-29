@@ -101,48 +101,91 @@
   .marker:hover { transform: scale(1.3); }
   .marker.on { background: var(--ink); border-color: var(--ink); }
 
-  /* Panel de inspección */
-  .panel {
-    position: fixed; z-index: 12;
-    right: clamp(18px, 4vw, 56px); top: 50%;
-    transform: translateY(-50%) translateX(24px);
-    width: min(340px, calc(100vw - 36px));
-    background: #FBF7EE; border: 1px solid rgba(43,36,28,.18);
-    box-shadow: 0 30px 70px -30px rgba(43,36,28,.45);
-    padding: 26px 26px 24px; border-radius: 4px;
+  /* Libro abierto: doble página (web navegable + servicios) */
+  .spread {
+    position: fixed; inset: 0; z-index: 20;
+    display: grid; place-items: center; padding: clamp(12px, 3vw, 40px);
     opacity: 0; visibility: hidden;
-    transition: opacity .45s ease, transform .45s cubic-bezier(.22,1,.36,1), visibility .45s;
+    transition: opacity .5s ease, visibility .5s;
   }
-  .panel.open { opacity: 1; visibility: visible; transform: translateY(-50%) translateX(0); }
-  .panel .mono { color: var(--foil); display: block; }
-  .panel h2 {
-    font-family: var(--serif); font-weight: 400; font-size: 1.7rem;
-    line-height: 1.15; margin: 8px 0 10px; color: var(--ink);
+  .spread.open { opacity: 1; visibility: visible; }
+  .spread__veil {
+    position: absolute; inset: 0;
+    background: rgba(236,227,209,.78);
+    backdrop-filter: blur(7px);
   }
-  .panel p { font-family: var(--mono); font-size: .66rem; letter-spacing: .1em; color: var(--muted); line-height: 2; }
-  .panel__actions { display: flex; gap: 10px; margin-top: 18px; }
-  .panel__visit {
+  .spread__book {
+    position: relative; z-index: 1;
+    width: min(1120px, 96vw); height: min(660px, 84vh);
+    display: grid; grid-template-columns: 1fr 1fr;
+    background: #FBF7EE;
+    border-radius: 8px;
+    box-shadow:
+      0 40px 90px -30px rgba(43,36,28,.55),
+      0 2px 0 #EFE5CF, 0 4px 0 #E7DCC4, 0 6px 0 #DFD3B9;   /* canto de páginas */
+    transform: scale(.94) translateY(14px);
+    transition: transform .5s cubic-bezier(.22,1,.36,1);
+  }
+  .spread.open .spread__book { transform: none; }
+  /* lomo central */
+  .spread__book::before {
+    content: ''; position: absolute; inset: 0 auto 0 50%; width: 46px;
+    transform: translateX(-50%);
+    background: linear-gradient(90deg, transparent, rgba(43,36,28,.14) 46%, rgba(43,36,28,.22) 50%, rgba(43,36,28,.14) 54%, transparent);
+    pointer-events: none; z-index: 2;
+  }
+  .page { padding: clamp(16px, 2.2vw, 30px); display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+  .page .mono { color: var(--foil); }
+  .page--web iframe {
+    flex: 1; width: 100%; min-height: 0;
+    border: 1px solid rgba(43,36,28,.2); border-radius: 3px;
+    background: #fff; margin-top: 12px;
+  }
+  .page--info { border-left: 1px solid rgba(43,36,28,.08); overflow: auto; }
+  .page--info h2 {
+    font-family: var(--serif); font-weight: 400; font-size: clamp(1.6rem, 2.6vw, 2.2rem);
+    line-height: 1.1; margin: 10px 0 12px; color: var(--ink);
+  }
+  .page--info .desc { font-family: var(--serif); font-style: italic; font-size: .98rem; color: #55493A; line-height: 1.6; }
+  .svc { list-style: none; margin-top: 18px; display: grid; gap: 10px; }
+  .svc li {
+    position: relative; padding-left: 22px;
+    font-size: .9rem; color: var(--ink);
+  }
+  .svc li::before {
+    content: ''; position: absolute; left: 0; top: 8px;
+    width: 10px; height: 10px; transform: rotate(45deg);
+    border: 1px solid var(--foil);
+  }
+  .page__rule { height: 1px; background: linear-gradient(90deg, var(--foil), transparent); margin-top: 18px; opacity: .5; }
+  .page__actions { display: flex; gap: 10px; margin-top: auto; padding-top: 18px; }
+  .page__visit {
     text-decoration: none; background: var(--ink); color: var(--paper);
-    font-size: .82rem; font-weight: 600; padding: 11px 20px; border-radius: 999px;
+    font-size: .84rem; font-weight: 600; padding: 12px 22px; border-radius: 999px;
     transition: transform .2s;
   }
-  .panel__visit:hover { transform: translateY(-2px); }
-  .panel__close {
+  .page__visit:hover { transform: translateY(-2px); }
+  .page__close {
     border: 1px solid rgba(43,36,28,.3); background: transparent; color: var(--ink);
-    font-size: .8rem; padding: 11px 16px; border-radius: 999px; cursor: pointer;
+    font-size: .82rem; padding: 12px 18px; border-radius: 999px; cursor: pointer;
     transition: border-color .2s;
   }
-  .panel__close:hover { border-color: var(--ink); }
-  .panel__hint { margin-top: 14px; color: var(--muted); }
+  .page__close:hover { border-color: var(--ink); }
 
+  @media (max-width: 860px) {
+    .spread__book {
+      grid-template-columns: 1fr; height: min(88vh, 940px);
+      grid-template-rows: 1.15fr auto;
+    }
+    .spread__book::before { display: none; }
+    .page--info { border-left: 0; border-top: 1px solid rgba(43,36,28,.1); }
+  }
   @media (max-width: 640px) {
     .masthead h1 { font-size: 1.5rem; }
-    .panel { right: 50%; top: auto; bottom: 92px; transform: translate(50%, 16px); }
-    .panel.open { transform: translate(50%, 0); }
     .hint { bottom: 150px; width: 90vw; }
   }
   @media (prefers-reduced-motion: reduce) {
-    .panel, .hint, .dock__btn, .marker, .panel__visit { transition: none; }
+    .spread, .spread__book, .hint, .dock__btn, .marker, .page__visit { transition: none; }
   }
 </style>
 </head>
@@ -160,7 +203,7 @@
   <h1>La estantería completa</h1>
 </div>
 
-<p class="hint mono" id="hint">arrastra · rueda · flechas — toca un lomo para sacar el libro</p>
+<p class="hint mono" id="hint">arrastra · rueda · flechas — toca un tomo para abrirlo</p>
 
 <nav class="dock" aria-label="Recorrer la estantería">
   <button class="dock__btn" id="prev" aria-label="Retroceder">←</button>
@@ -168,16 +211,26 @@
   <button class="dock__btn" id="next" aria-label="Avanzar">→</button>
 </nav>
 
-<aside class="panel" id="panel" aria-live="polite">
-  <span class="mono" id="pNum">01</span>
-  <h2 id="pTitle"></h2>
-  <p id="pSub"></p>
-  <div class="panel__actions">
-    <a class="panel__visit" id="pLink" href="#" target="_blank" rel="noopener">Ver web ↗</a>
-    <button class="panel__close" id="pClose">Cerrar ✕</button>
+<div class="spread" id="spread" role="dialog" aria-modal="true" aria-label="Proyecto abierto">
+  <div class="spread__veil" id="spreadVeil"></div>
+  <div class="spread__book">
+    <div class="page page--web">
+      <span class="mono" id="sNum">( la web, en vivo — puedes scrollear )</span>
+      <iframe id="sFrame" src="about:blank" title="Vista previa navegable de la web del proyecto" loading="lazy"></iframe>
+    </div>
+    <div class="page page--info">
+      <span class="mono">( lo que hicimos )</span>
+      <h2 id="sTitle"></h2>
+      <p class="desc" id="sDesc"></p>
+      <ul class="svc" id="sSvc"></ul>
+      <div class="page__rule"></div>
+      <div class="page__actions">
+        <a class="page__visit" id="sLink" href="#" target="_blank" rel="noopener">Ver web ↗</a>
+        <button class="page__close" id="sClose">Cerrar ✕</button>
+      </div>
+    </div>
   </div>
-  <p class="panel__hint mono">arrastra para girar el libro · rueda para acercar</p>
-</aside>
+</div>
 
 <script src="vendor/gsap.min.js"></script>
 <script type="importmap">{ "imports": { "three": "./vendor/three.module.min.js" } }</script>
@@ -191,6 +244,13 @@ const PROJECTS = [
   { num:'03', title:'Boat 4 Rent',          sub:'Construcción web · Catálogo · Tarifas online',         url:'https://boat4renttarragona.com', img:'img/portfolio/boat4rent.webp',      cloth:'#55617A' },
   { num:'04', title:'Pizzería Da Luca',     sub:'Construcción web · Carta digital · Pedidos',           url:'https://pizzeriadaluca.es',      img:'img/portfolio/daluca.webp',         cloth:'#9C6B4F' },
   { num:'05', title:'Le Massage',           sub:'Construcción web · Reservas · Mailing · Publicidad',   url:'https://lemassage.es',           img:'img/portfolio/lemassage.webp',      cloth:'#87707F' },
+];
+const DESCS = [
+  'Restaurante del paseo de Salou: una carta digital que se abre con QR y un SEO local pensado para llenar mesas.',
+  'Alquiler de barcos con reservas en tiempo real, web en cuatro idiomas y analítica propia sin cookies.',
+  'Flota, catálogo y tarifas online para el alquiler náutico en Tarragona.',
+  'Pizzería de barrio con carta digital y pedidos a domicilio directamente desde su web.',
+  'Centro de masajes con reservas online, mailing a clientas y campañas de publicidad.',
 ];
 const DECOYS = ['#8C8474','#6E7B72','#A89A7E','#75655A','#5E6B63','#93857B','#6B6255','#7E8B95','#9A8D97','#556058','#8B7D62','#77706B','#63707C','#867B6B'];
 const REAL_SLOTS = [2, 5, 9, 13, 16];              // posiciones de los 5 reales entre 19
@@ -301,12 +361,12 @@ scene.add(sun);
 /* libros */
 const books = [];
 let cursor = 0;
-const GAP = 0.015;
+const GAP = 0.004;                                  // tomos pegados
 for (let i = 0, di = 0; i < 19; i++) {
   const slot = REAL_SLOTS.indexOf(i);
   const project = slot >= 0 ? PROJECTS[slot] : null;
-  const h = project ? 1.16 + rand() * 0.06 : 0.92 + rand() * 0.22;
-  const w = project ? 0.16 + rand() * 0.03 : 0.09 + rand() * 0.11;
+  const h = project ? 1.18 + rand() * 0.06 : 0.98 + rand() * 0.2;
+  const w = project ? 0.27 + rand() * 0.05 : 0.18 + rand() * 0.1;   // tomos gordos
   const d = 0.66 + rand() * 0.1;
   const book = { project, cloth: project ? project.cloth : DECOYS[di++ % DECOYS.length] };
   const cloth = new THREE.MeshStandardMaterial({ color: book.cloth, roughness: 0.85 });
@@ -321,9 +381,7 @@ for (let i = 0, di = 0; i < 19; i++) {
   const g = new THREE.Group();
   g.add(mesh);
   g.position.set(cursor + w / 2, h / 2, 0);
-  if (REAL_SLOTS.includes(i + 1) || slot >= 0) cursor += w + GAP; else cursor += w + GAP;
-  if ((i + 1) % 5 === 0) cursor += 0.14;        // respiros entre grupos
-  cursor += 0;
+  cursor += w + GAP;
   g.userData = { project, baseX: g.position.x, baseY: g.position.y, w, h, mesh, slot };
   scene.add(g);
   books.push(g);
@@ -434,30 +492,46 @@ const markerBtns = PROJECTS.map((p, i) => {
   return b;
 });
 
-/* ---------- abrir / cerrar libro ---------- */
-const panel = document.getElementById('panel');
+/* ---------- abrir / cerrar libro (doble página) ---------- */
+const spread = document.getElementById('spread');
+const sFrame = document.getElementById('sFrame');
 function openBook(g) {
   mode = 'inspect'; selected = g;
   const p = g.userData.project;
-  document.getElementById('pNum').textContent = p.num;
-  document.getElementById('pTitle').textContent = p.title;
-  document.getElementById('pSub').textContent = p.sub;
-  document.getElementById('pLink').href = p.url;
-  panel.classList.add('open');
+  document.getElementById('sTitle').textContent = p.title;
+  document.getElementById('sDesc').textContent = DESCS[g.userData.slot];
+  document.getElementById('sLink').href = p.url;
+  const svc = document.getElementById('sSvc');
+  svc.innerHTML = '';
+  p.sub.split('·').forEach(s => {
+    const li = document.createElement('li');
+    li.textContent = s.trim();
+    svc.appendChild(li);
+  });
   scrollT = g.userData.baseX;
-  zoomT = zoomBase();
-  gsap.to(g.position, { x: g.userData.baseX, y: 0.78, z: 1.05, duration: DUR, ease: 'power3.out' });
-  gsap.to(g.rotation, { y: -Math.PI / 2 + 0.12, x: 0, duration: DUR, ease: 'power3.out' });
+  /* el tomo sale del estante y, al llegar, el libro se abre en doble página */
+  gsap.to(g.position, { x: g.userData.baseX, y: 0.85, z: 1.1, duration: DUR, ease: 'power3.out' });
+  gsap.to(g.rotation, { y: -Math.PI / 2 + 0.1, x: 0.05, duration: DUR, ease: 'power3.out',
+    onComplete: revealSpread });
+  if (reduce) revealSpread();
+}
+function revealSpread() {
+  if (mode !== 'inspect' || !selected) return;
+  sFrame.src = selected.userData.project.url;      // la web real, navegable
+  spread.classList.add('open');
+  document.getElementById('sClose').focus();
 }
 function closeBook() {
   const g = selected; if (!g) return;
-  panel.classList.remove('open');
+  spread.classList.remove('open');
+  sFrame.src = 'about:blank';                       // descargar la web al cerrar
   gsap.to(g.position, { x: g.userData.baseX, y: g.userData.baseY, z: 0, duration: DUR, ease: 'power3.inOut' });
   gsap.to(g.rotation, { x: 0, y: 0, duration: DUR, ease: 'power3.inOut',
     onComplete: () => { mode = 'browse'; selected = null; } });
   if (reduce) { mode = 'browse'; selected = null; }
 }
-document.getElementById('pClose').addEventListener('click', closeBook);
+document.getElementById('sClose').addEventListener('click', closeBook);
+document.getElementById('spreadVeil').addEventListener('click', closeBook);
 
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 
@@ -475,7 +549,8 @@ function tick() {
   const k = reduce ? 1 : 0.09;
   scroll += (scrollT - scroll) * k;
 
-  const camZ = mode === 'inspect' ? 2.05 * zoomT : 3.35;
+  const aspectFix = Math.max(1, 1.25 / camera.aspect);   // en vertical, aleja para ver más tomos
+  const camZ = (mode === 'inspect' ? 2.05 * zoomT : 3.35) * aspectFix;
   const camY = mode === 'inspect' ? 0.8 : 0.85;
   camera.position.set(scroll, camY, camZ);
   camera.lookAt(scroll, mode === 'inspect' ? 0.76 : 0.48, 0);
