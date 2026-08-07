@@ -239,11 +239,16 @@ import * as THREE from 'three';
 
 /* ---------- datos ---------- */
 const PROJECTS = [
-  { num:'01', title:'La Brisa Salou',       sub:'Construcción web · Carta digital · SEO local',        url:'https://labrisasalou.com',       img:'img/portfolio/labrisa.webp',        cloth:'#77897C' },
-  { num:'02', title:'Rent a Boat Salou',    sub:'Construcción web · Gestor de reservas · SEO local',    url:'https://rentaboatsalou.com',     img:'img/portfolio/rentaboat-salou.webp',cloth:'#5B7A96' },
-  { num:'03', title:'Boat 4 Rent',          sub:'Construcción web · Catálogo · Tarifas online',         url:'https://boat4renttarragona.com', img:'img/portfolio/boat4rent.webp',      cloth:'#55617A' },
-  { num:'04', title:'Pizzería Da Luca',     sub:'Construcción web · Carta digital · Pedidos',           url:'https://pizzeriadaluca.es',      img:'img/portfolio/daluca.webp',         cloth:'#9C6B4F' },
-  { num:'05', title:'Le Massage',           sub:'Construcción web · Reservas · Mailing · Publicidad',   url:'https://lemassage.es',           img:'img/portfolio/lemassage.webp',      cloth:'#87707F' },
+  { num:'01', title:'La Brisa Salou', url:'https://labrisasalou.com', img:'img/portfolio/labrisa.webp', cloth:'#77897C',
+    svc:['Diseño y construcción web','Carta digital con QR','SEO local','GEO — visibilidad en buscadores de IA','Ficha de Google Business','Mantenimiento'] },
+  { num:'02', title:'Rent a Boat Salou', url:'https://rentaboatsalou.com', img:'img/portfolio/rentaboat-salou.webp', cloth:'#5B7A96',
+    svc:['Diseño y construcción web','Gestor de reservas a medida','Web en 4 idiomas (ES·EN·FR·CA)','SEO local + GEO','Analítica propia sin cookies','Automatización de operaciones'] },
+  { num:'03', title:'Boat 4 Rent', url:'https://boat4renttarragona.com', img:'img/portfolio/boat4rent.webp', cloth:'#55617A',
+    svc:['Diseño y construcción web','Catálogo de flota','Tarifas y disponibilidad online','SEO local','GEO — visibilidad en buscadores de IA'] },
+  { num:'04', title:'Pizzería Da Luca', url:'https://pizzeriadaluca.es', img:'img/portfolio/daluca.webp', cloth:'#9C6B4F',
+    svc:['Diseño y construcción web','Carta digital','Pedidos a domicilio','SEO local','Ficha de Google Business'] },
+  { num:'05', title:'Le Massage', url:'https://lemassage.es', img:'img/portfolio/lemassage.webp', cloth:'#87707F',
+    svc:['Diseño y construcción web','Sistema de reservas online','Email marketing','Publicidad — Meta y Google Ads','SEO local + GEO'] },
 ];
 const DESCS = [
   'Restaurante del paseo de Salou: una carta digital que se abre con QR y un SEO local pensado para llenar mesas.',
@@ -253,7 +258,7 @@ const DESCS = [
   'Centro de masajes con reservas online, mailing a clientas y campañas de publicidad.',
 ];
 const DECOYS = ['#8C8474','#6E7B72','#A89A7E','#75655A','#5E6B63','#93857B','#6B6255','#7E8B95','#9A8D97','#556058','#8B7D62','#77706B','#63707C','#867B6B'];
-const REAL_SLOTS = [2, 5, 9, 13, 16];              // posiciones de los 5 reales entre 19
+const REAL_SLOTS = [0, 1, 2, 3, 4];                // cada libro ES un proyecto
 const FOIL = '#B9975B', PAPER_EDGE = '#EFE5CF';
 
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -361,13 +366,13 @@ scene.add(sun);
 /* libros */
 const books = [];
 let cursor = 0;
-const GAP = 0.004;                                  // tomos pegados
-for (let i = 0, di = 0; i < 19; i++) {
-  const slot = REAL_SLOTS.indexOf(i);
-  const project = slot >= 0 ? PROJECTS[slot] : null;
-  const h = project ? 1.18 + rand() * 0.06 : 0.98 + rand() * 0.2;
-  const w = project ? 0.27 + rand() * 0.05 : 0.18 + rand() * 0.1;   // tomos gordos
-  const d = 0.66 + rand() * 0.1;
+const GAP = 0;                                      // pegados del todo
+for (let i = 0, di = 0; i < PROJECTS.length; i++) {
+  const slot = i;
+  const project = PROJECTS[i];
+  const h = 1.14 + rand() * 0.1;
+  const w = 0.34 + rand() * 0.07;                   // tomos bien anchos
+  const d = 0.7 + rand() * 0.06;
   const book = { project, cloth: project ? project.cloth : DECOYS[di++ % DECOYS.length] };
   const cloth = new THREE.MeshStandardMaterial({ color: book.cloth, roughness: 0.85 });
   const pages = new THREE.MeshStandardMaterial({ color: PAPER_EDGE, roughness: 0.9 });
@@ -388,6 +393,17 @@ for (let i = 0, di = 0; i < 19; i++) {
 }
 const shelfLen = cursor;
 
+/* sujetalibros de nogal a ambos lados */
+for (const bx of [-0.09, shelfLen + 0.09 - GAP]) {
+  const end = new THREE.Mesh(
+    new THREE.BoxGeometry(0.09, 0.62, 0.78),
+    new THREE.MeshStandardMaterial({ color: '#4A3628', roughness: 0.6 })
+  );
+  end.position.set(bx, 0.31, 0);
+  end.castShadow = true;
+  scene.add(end);
+}
+
 /* estantería de nogal */
 const walnut = new THREE.MeshStandardMaterial({ color: '#5C4432', roughness: 0.6 });
 const board = new THREE.Mesh(new THREE.BoxGeometry(shelfLen + 1.6, 0.07, 1.05), walnut);
@@ -407,7 +423,7 @@ scene.add(wall);
 
 /* ---------- estado ---------- */
 let scroll = books[REAL_SLOTS[0]].userData.baseX, scrollT = scroll;
-const minX = books[0].userData.baseX, maxX = books[18].userData.baseX;
+const minX = books[0].userData.baseX, maxX = books[books.length - 1].userData.baseX;
 let mode = 'browse';                 // 'browse' | 'inspect'
 let selected = null, hovered = null;
 let zoomT = 1.35;
@@ -416,7 +432,7 @@ const zoomBase = () => innerWidth < innerHeight ? 1.75 : 1.35;   // en vertical,
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2(-2, -2);
 /* gancho de depuración (inocuo en producción) */
-window.__shelf = { books, camera, pointer, raycaster, state: () => ({ mode, hovered: hovered?.userData?.project?.title ?? null, scroll, scrollT }) };
+window.__shelf = { books, camera, pointer, raycaster, state: () => ({ mode, hovered: hovered?.userData?.project?.title ?? null, scroll, scrollT, dragMoved }) };
 
 function resize() {
   camera.aspect = innerWidth / innerHeight;
@@ -503,9 +519,9 @@ function openBook(g) {
   document.getElementById('sLink').href = p.url;
   const svc = document.getElementById('sSvc');
   svc.innerHTML = '';
-  p.sub.split('·').forEach(s => {
+  p.svc.forEach(s => {
     const li = document.createElement('li');
-    li.textContent = s.trim();
+    li.textContent = s;
     svc.appendChild(li);
   });
   scrollT = g.userData.baseX;
@@ -532,6 +548,8 @@ function closeBook() {
 }
 document.getElementById('sClose').addEventListener('click', closeBook);
 document.getElementById('spreadVeil').addEventListener('click', closeBook);
+window.__shelf.open = openBook;
+window.__shelf.close = closeBook;
 
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 
