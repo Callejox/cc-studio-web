@@ -202,16 +202,14 @@
     <!-- ARCHIVO DE PROYECTOS: la estantería (biblioteca 3D) -->
     <section class="pp-shelfsec" id="works">
       <div class="pp-shelfsec__head" data-reveal>
-        <span class="pp-mono">[ 01 ]  ( archivo de proyectos )</span>
+        <span class="pp-mono">[ 01 ]  ( algunos de nuestros proyectos )</span>
         <h2 class="pp-sec-title" data-words>La estantería<br>del estudio</h2>
-        <p class="pp-shelfsec__sub pp-mono">arrastra o usa los marcadores · toca un tomo para abrirlo</p>
+        <p class="pp-shelfsec__sub pp-mono">arrastra, acércate a los bordes o usa los marcadores · toca un tomo para abrirlo</p>
       </div>
       <div class="pp-shelf" id="ppShelf" data-reveal>
         <canvas id="shelf" aria-label="Estantería 3D con los proyectos del estudio como libros antiguos. Usa los botones y marcadores para recorrerla y pulsa un tomo para abrirlo." role="img"></canvas>
         <nav class="dock" aria-label="Recorrer la estantería">
-          <button class="dock__btn" id="prev" aria-label="Retroceder" type="button">←</button>
           <div class="markers" id="markers" role="group" aria-label="Proyectos"></div>
-          <button class="dock__btn" id="next" aria-label="Avanzar" type="button">→</button>
         </nav>
       </div>
     </section>
@@ -604,7 +602,7 @@
   <script type="importmap">{ "imports": { "three": "./vendor/three.module.min.js" } }</script>
   <script type="module">
     /* La estantería 3D se inicializa solo cuando la sección se acerca */
-    import { initEstanteria } from './estanteria.js?v=3';
+    import { initEstanteria } from './estanteria.js?v=4';
     const shelfBox = document.getElementById('ppShelf');
     if (shelfBox) {
       let started = false;

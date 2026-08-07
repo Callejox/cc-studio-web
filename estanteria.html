@@ -244,16 +244,14 @@
 </header>
 
 <div class="masthead">
-  <span class="mono">[ 01 ]  ( archivo de proyectos )</span>
+  <span class="mono">[ 01 ]  ( algunos de nuestros proyectos )</span>
   <h1>La estantería completa</h1>
 </div>
 
 <p class="hint mono" id="hint">arrastra · rueda · flechas — toca un tomo para abrirlo</p>
 
 <nav class="dock" aria-label="Recorrer la estantería">
-  <button class="dock__btn" id="prev" aria-label="Retroceder">←</button>
   <div class="markers" id="markers" role="group" aria-label="Proyectos"></div>
-  <button class="dock__btn" id="next" aria-label="Avanzar">→</button>
 </nav>
 
 <div class="spread" id="spread" role="dialog" aria-modal="true" aria-label="Proyecto abierto">
@@ -280,7 +278,7 @@
 <script src="vendor/gsap.min.js"></script>
 <script type="importmap">{ "imports": { "three": "./vendor/three.module.min.js" } }</script>
 <script type="module">
-import { initEstanteria } from './estanteria.js?v=3';
+import { initEstanteria } from './estanteria.js?v=4';
 initEstanteria({ canvas: document.getElementById('shelf'), embed: false });
 </script>
 </body>

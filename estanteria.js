@@ -12,15 +12,15 @@ export function initEstanteria({ canvas, embed = false } = {}) {
 
 /* ---------- datos ---------- */
 const PROJECTS = [
-  { num:'01', title:'La Brisa Salou', url:'https://labrisasalou.com', img:'img/portfolio/labrisa.webp', cloth:'#46543F',
+  { num:'01', title:'La Brisa Salou', logo:'img/portfolio/logos/labrisa.png', url:'https://labrisasalou.com', img:'img/portfolio/labrisa.webp', cloth:'#46543F',
     svc:['Diseño y construcción web','Carta digital con QR','SEO local','GEO — visibilidad en buscadores de IA','Ficha de Google Business','Mantenimiento'] },
-  { num:'02', title:'Rent a Boat Salou', url:'https://rentaboatsalou.com', img:'img/portfolio/rentaboat-salou.webp', cloth:'#33465C',
+  { num:'02', title:'Rent a Boat Salou', logo:'img/portfolio/logos/rentaboat.png', url:'https://rentaboatsalou.com', img:'img/portfolio/rentaboat-salou.webp', cloth:'#33465C',
     svc:['Diseño y construcción web','Gestor de reservas a medida','Web en 4 idiomas (ES·EN·FR·CA)','SEO local + GEO','Analítica propia sin cookies','Automatización de operaciones'] },
-  { num:'03', title:'Boat 4 Rent', url:'https://boat4renttarragona.com', img:'img/portfolio/boat4rent.webp', cloth:'#563A2E',
+  { num:'03', title:'Boat 4 Rent', logo:'img/portfolio/logos/boat4rent.png', url:'https://boat4renttarragona.com', img:'img/portfolio/boat4rent.webp', cloth:'#563A2E',
     svc:['Diseño y construcción web','Catálogo de flota','Tarifas y disponibilidad online','SEO local','GEO — visibilidad en buscadores de IA'] },
-  { num:'04', title:'Pizzería Da Luca', url:'https://pizzeriadaluca.es', img:'img/portfolio/daluca.webp', cloth:'#5E3236',
+  { num:'04', title:'Pizzería Da Luca', logo:'img/portfolio/logos/daluca.png', url:'https://pizzeriadaluca.es', img:'img/portfolio/daluca.webp', cloth:'#5E3236',
     svc:['Diseño y construcción web','Carta digital','Pedidos a domicilio','SEO local','Ficha de Google Business'] },
-  { num:'05', title:'Le Massage', url:'https://lemassage.es', img:'img/portfolio/lemassage.webp', cloth:'#4A3D52',
+  { num:'05', title:'Le Massage', logo:'img/portfolio/logos/lemassage.png', url:'https://lemassage.es', img:'img/portfolio/lemassage.webp', cloth:'#4A3D52',
     svc:['Diseño y construcción web','Sistema de reservas online','Email marketing','Publicidad — Meta y Google Ads','SEO local + GEO'] },
 ];
 const DESCS = [
@@ -121,20 +121,36 @@ function makeCover(p) {
   x.fillText('— CC STUDIO —', 256, 580);
   x.globalAlpha = 1;
   const t = tex(c);
+  /* el logo de la empresa, estampado en el centro de la tapa */
   const img = new Image();
   img.onload = () => {
-    const fw = 356, fh = 336, fx = (512 - fw) / 2, fy = 164;
+    const probe = document.createElement('canvas'); probe.width = 64; probe.height = 64;
+    const pr = probe.getContext('2d');
+    pr.drawImage(img, 0, 0, 64, 64);
+    const dd = pr.getImageData(0, 0, 64, 64).data;
+    let lum = 0, n = 0;
+    for (let i = 0; i < dd.length; i += 4) {
+      if (dd[i+3] > 40) { lum += dd[i]*.299 + dd[i+1]*.587 + dd[i+2]*.114; n++; }
+    }
+    lum = n ? lum / n / 255 : 1;
+    const maxW = 350, maxH = 280, cx2 = 256, cy2 = 335;
+    const s = Math.min(maxW / img.width, maxH / img.height);
+    const dw = img.width * s, dh = img.height * s;
     x.globalAlpha = 1;
-    x.fillStyle = PAPER_EDGE; x.fillRect(fx - 9, fy - 9, fw + 18, fh + 18);
-    const s = Math.max(fw / img.width, fh / img.height);
-    const sw = fw / s, sh = fh / s;
-    x.drawImage(img, (img.width - sw) / 2, (img.height - sh) / 2, sw, sh, fx, fy, fw, fh);
-    x.fillStyle = 'rgba(90,70,40,.14)'; x.fillRect(fx, fy, fw, fh);
-    foil(x, .9); x.lineWidth = 3; x.strokeRect(fx - 9, fy - 9, fw + 18, fh + 18);
+    if (lum < 0.45) {                    /* logo oscuro: lámina clara detrás */
+      x.fillStyle = PAPER_EDGE;
+      x.fillRect(cx2 - dw/2 - 22, cy2 - dh/2 - 22, dw + 44, dh + 44);
+      foil(x, .9); x.lineWidth = 3;
+      x.strokeRect(cx2 - dw/2 - 22, cy2 - dh/2 - 22, dw + 44, dh + 44);
+      x.globalAlpha = 1;
+    }
+    x.drawImage(img, cx2 - dw/2, cy2 - dh/2, dw, dh);
+    x.globalAlpha = .08; x.fillStyle = '#2B1F12';   /* pátina para integrarlo */
+    x.fillRect(cx2 - dw/2, cy2 - dh/2, dw, dh);
     x.globalAlpha = 1;
     t.needsUpdate = true;
   };
-  img.src = p.img;
+  img.src = p.logo;
   return t;
 }
 function makePaper(lines = false) {
@@ -338,7 +354,9 @@ const hint = document.getElementById('hint');
 let hinted = false;
 const useHint = () => { if (!hinted) { hinted = true; hint && hint.classList.add('off'); } };
 
-let dragging = false, dragMoved = 0, px = 0;
+let dragging = false, dragMoved = 0, px = 0, pointerIn = false;
+canvas.addEventListener('pointerenter', () => { pointerIn = true; });
+canvas.addEventListener('pointerleave', () => { pointerIn = false; });
 canvas.addEventListener('pointerdown', e => {
   dragging = true; dragMoved = 0; px = e.clientX;
   canvas.setPointerCapture(e.pointerId);
@@ -384,8 +402,9 @@ canvas.addEventListener('click', () => {
   if (hovered) openBook(hovered);
 });
 
-document.getElementById('prev').addEventListener('click', () => { if (mode === 'browse') scrollT = clamp(scrollT - 0.6, minX, maxX); });
-document.getElementById('next').addEventListener('click', () => { if (mode === 'browse') scrollT = clamp(scrollT + 0.6, minX, maxX); });
+const prevBtn = document.getElementById('prev'), nextBtn = document.getElementById('next');
+prevBtn && prevBtn.addEventListener('click', () => { if (mode === 'browse') scrollT = clamp(scrollT - 0.6, minX, maxX); });
+nextBtn && nextBtn.addEventListener('click', () => { if (mode === 'browse') scrollT = clamp(scrollT + 0.6, minX, maxX); });
 
 const markersEl = document.getElementById('markers');
 const markerBtns = PROJECTS.map((p, i) => {
@@ -492,6 +511,12 @@ function tick() {
   lamp.position.x = scroll;
 
   if (mode === 'browse') {
+    /* acercarse a los márgenes desliza el estante hacia ese lado */
+    if (pointerIn && !dragging && Math.abs(pointer.x) > 0.72) {
+      const f = (Math.abs(pointer.x) - 0.72) / 0.28;
+      scrollT = clamp(scrollT + Math.sign(pointer.x) * 0.035 * f, minX, maxX);
+      useHint();
+    }
     raycaster.setFromCamera(pointer, camera);
     const hits = raycaster.intersectObjects(hitMeshes);
     const target = hits.length ? hits[0].object.userData.book : null;
