@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let lenis = null;
   if (typeof Lenis !== 'undefined' && !reduce) {
     lenis = new Lenis({ duration: 1.2 });
+    window.__lenis = lenis;   /* la estantería lo pausa con el libro abierto */
     const raf = t => { lenis.raf(t); requestAnimationFrame(raf); };
     requestAnimationFrame(raf);
   }

@@ -68,7 +68,7 @@
   <link rel="preload" href="fonts/poppins-800-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="fonts/inter-400-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="fonts/fonts.css">
-  <link rel="stylesheet" href="prototipo-cc.css?v=57">
+  <link rel="stylesheet" href="prototipo-cc.css?v=60">
 
   <!-- Medición (píxel de Meta 1045085271445998 + Google Analytics G-R4FHKXF4K7):
        NO se carga nada hasta aceptar cookies -->
@@ -199,108 +199,20 @@
 
 
     <!-- TRABAJOS: focus cards sobre vídeo de fondo (rediseño v36) -->
-    <section class="pp-works" id="works">
-      <div class="pp-works__bg" aria-hidden="true">
-        <video muted loop playsinline autoplay preload="none" data-src="video/trabajos.mp4"></video>
-        <div class="pp-works__veil"></div>
-        <div class="pp-works__fade pp-works__fade--top"></div>
-        <div class="pp-works__fade pp-works__fade--bottom"></div>
+    <!-- ARCHIVO DE PROYECTOS: la estantería (biblioteca 3D) -->
+    <section class="pp-shelfsec" id="works">
+      <div class="pp-shelfsec__head" data-reveal>
+        <span class="pp-mono">[ 01 ]  ( archivo de proyectos )</span>
+        <h2 class="pp-sec-title" data-words>La estantería<br>del estudio</h2>
+        <p class="pp-shelfsec__sub pp-mono">arrastra o usa los marcadores · toca un tomo para abrirlo</p>
       </div>
-
-      <div class="pp-works__head" data-reveal>
-        <span class="pp-mono">[ 01 ]  ( trabajos seleccionados )</span>
-        <h2 class="pp-sec-title" data-words>Archivo<br>de proyectos</h2>
-      </div>
-
-      <!-- Slider acordeón de proyectos (rediseño v38) -->
-      <div class="pp-cat" id="ppCat">
-        <div class="pp-cat__wrapper">
-
-          <div class="pp-catcard active" style="background-image:url('img/portfolio/labrisa.webp')">
-            <div class="pp-cat__scroll" data-lenis-prevent>
-              <img src="img/portfolio/labrisa.webp" alt="La Brisa Salou" loading="lazy">
-            </div>
-            <div class="pp-cat__shade"></div>
-            <div class="pp-cat__label">
-              <div class="pp-cat__icon pp-mono">01</div>
-              <div class="pp-cat__info">
-                <div class="pp-cat__main">La Brisa Salou</div>
-                <div class="pp-cat__sub">Construcción web · Carta digital · SEO local</div>
-                <a class="pp-cat__link pp-mono" href="https://labrisasalou.com" target="_blank" rel="noopener">ver web ↗</a>
-              </div>
-            </div>
-          </div>
-
-          <div class="pp-catcard" style="background-image:url('img/portfolio/rentaboat-salou.webp')">
-            <div class="pp-cat__scroll" data-lenis-prevent>
-              <img src="img/portfolio/rentaboat-salou.webp" alt="Rent a Boat Salou" loading="lazy">
-            </div>
-            <div class="pp-cat__shade"></div>
-            <div class="pp-cat__label">
-              <div class="pp-cat__icon pp-mono">02</div>
-              <div class="pp-cat__info">
-                <div class="pp-cat__main">Rent a Boat Salou</div>
-                <div class="pp-cat__sub">Construcción web · Gestor de reservas · SEO local</div>
-                <a class="pp-cat__link pp-mono" href="https://rentaboatsalou.com" target="_blank" rel="noopener">ver web ↗</a>
-              </div>
-            </div>
-          </div>
-
-          <div class="pp-catcard" style="background-image:url('img/portfolio/boat4rent.webp')">
-            <div class="pp-cat__scroll" data-lenis-prevent>
-              <img src="img/portfolio/boat4rent.webp" alt="Boat 4 Rent Tarragona" loading="lazy">
-            </div>
-            <div class="pp-cat__shade"></div>
-            <div class="pp-cat__label">
-              <div class="pp-cat__icon pp-mono">03</div>
-              <div class="pp-cat__info">
-                <div class="pp-cat__main">Boat 4 Rent Tarragona</div>
-                <div class="pp-cat__sub">Construcción web · Catálogo · Tarifas online</div>
-                <a class="pp-cat__link pp-mono" href="https://boat4renttarragona.com" target="_blank" rel="noopener">ver web ↗</a>
-              </div>
-            </div>
-          </div>
-
-          <div class="pp-catcard" style="background-image:url('img/portfolio/daluca.webp')">
-            <div class="pp-cat__scroll" data-lenis-prevent>
-              <img src="img/portfolio/daluca.webp" alt="Pizzería Da Luca" loading="lazy">
-            </div>
-            <div class="pp-cat__shade"></div>
-            <div class="pp-cat__label">
-              <div class="pp-cat__icon pp-mono">04</div>
-              <div class="pp-cat__info">
-                <div class="pp-cat__main">Pizzería Da Luca</div>
-                <div class="pp-cat__sub">Construcción web · Carta digital · Pedidos a domicilio</div>
-                <a class="pp-cat__link pp-mono" href="https://pizzeriadaluca.es" target="_blank" rel="noopener">ver web ↗</a>
-              </div>
-            </div>
-          </div>
-
-          <div class="pp-catcard" style="background-image:url('img/portfolio/lemassage.webp')">
-            <div class="pp-cat__scroll" data-lenis-prevent>
-              <img src="img/portfolio/lemassage.webp" alt="Le Massage" loading="lazy">
-            </div>
-            <div class="pp-cat__shade"></div>
-            <div class="pp-cat__label">
-              <div class="pp-cat__icon pp-mono">05</div>
-              <div class="pp-cat__info">
-                <div class="pp-cat__main">Le Massage</div>
-                <div class="pp-cat__sub">Construcción web · Reservas · Mailing · Publicidad</div>
-                <a class="pp-cat__link pp-mono" href="https://lemassage.es" target="_blank" rel="noopener">ver web ↗</a>
-              </div>
-            </div>
-          </div>
-
-          <!-- Miniaturas circulares (solo móvil/tablet) -->
-          <div class="pp-cat__thumbs">
-            <button type="button" class="pp-cat__thumb is-hidden" style="background-image:url('img/portfolio/labrisa.webp')" aria-label="La Brisa Salou"><span class="pp-cat__thumb-inner pp-mono">01</span></button>
-            <button type="button" class="pp-cat__thumb" style="background-image:url('img/portfolio/rentaboat-salou.webp')" aria-label="Rent a Boat Salou"><span class="pp-cat__thumb-inner pp-mono">02</span></button>
-            <button type="button" class="pp-cat__thumb" style="background-image:url('img/portfolio/boat4rent.webp')" aria-label="Boat 4 Rent Tarragona"><span class="pp-cat__thumb-inner pp-mono">03</span></button>
-            <button type="button" class="pp-cat__thumb" style="background-image:url('img/portfolio/daluca.webp')" aria-label="Pizzería Da Luca"><span class="pp-cat__thumb-inner pp-mono">04</span></button>
-            <button type="button" class="pp-cat__thumb" style="background-image:url('img/portfolio/lemassage.webp')" aria-label="Le Massage"><span class="pp-cat__thumb-inner pp-mono">05</span></button>
-          </div>
-
-        </div>
+      <div class="pp-shelf" id="ppShelf" data-reveal>
+        <canvas id="shelf" aria-label="Estantería 3D con los proyectos del estudio como libros antiguos. Usa los botones y marcadores para recorrerla y pulsa un tomo para abrirlo." role="img"></canvas>
+        <nav class="dock" aria-label="Recorrer la estantería">
+          <button class="dock__btn" id="prev" aria-label="Retroceder" type="button">←</button>
+          <div class="markers" id="markers" role="group" aria-label="Proyectos"></div>
+          <button class="dock__btn" id="next" aria-label="Avanzar" type="button">→</button>
+        </nav>
       </div>
     </section>
 
@@ -663,9 +575,49 @@
     </svg>
   </a>
 
+  <!-- Libro abierto (modal de la estantería) -->
+  <div class="spread" id="spread" role="dialog" aria-modal="true" aria-label="Proyecto abierto">
+    <div class="spread__veil" id="spreadVeil"></div>
+    <div class="spread__book">
+      <div class="page page--web">
+        <span class="est-mono">( la web, en vivo — puedes scrollear )</span>
+        <iframe id="sFrame" src="about:blank" title="Vista previa navegable de la web del proyecto" loading="lazy"></iframe>
+      </div>
+      <div class="page page--info">
+        <span class="est-mono">( lo que hicimos )</span>
+        <h2 id="sTitle"></h2>
+        <p class="desc" id="sDesc"></p>
+        <ul class="svc" id="sSvc"></ul>
+        <div class="page__rule"></div>
+        <div class="page__actions">
+          <a class="page__visit" id="sLink" href="#" target="_blank" rel="noopener">Ver web ↗</a>
+          <button class="page__close" id="sClose" type="button">Cerrar ✕</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="vendor/lenis.min.js"></script>
   <script src="vendor/gsap.min.js"></script>
   <script src="vendor/ScrollTrigger.min.js"></script>
-  <script src="prototipo-cc.js?v=57"></script>
+  <script src="prototipo-cc.js?v=60"></script>
+  <script type="importmap">{ "imports": { "three": "./vendor/three.module.min.js" } }</script>
+  <script type="module">
+    /* La estantería 3D se inicializa solo cuando la sección se acerca */
+    import { initEstanteria } from './estanteria.js?v=3';
+    const shelfBox = document.getElementById('ppShelf');
+    if (shelfBox) {
+      let started = false;
+      const arranca = () => {
+        if (started) return;
+        started = true;
+        initEstanteria({ canvas: document.getElementById('shelf'), embed: true });
+      };
+      const io = new IntersectionObserver(es => {
+        if (es[0].isIntersecting) { arranca(); io.disconnect(); }
+      }, { rootMargin: '600px 0px' });
+      io.observe(shelfBox);
+    }
+  </script>
 </body>
 </html>
